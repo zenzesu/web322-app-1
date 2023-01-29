@@ -1,0 +1,15 @@
+{
+  "name": "web322-app",
+  "version": "1.0.0",
+  "description": "web app for web322",
+  "main": "server.js",
+  "scripts": {
+    "test": "ws",
+    "start": "node server.js"
+  },
+  "author": "Subin Gurung",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
