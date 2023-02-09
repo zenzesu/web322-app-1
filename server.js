@@ -1,9 +1,39 @@
+/***********************************************************************
+**********
+* WEB322 – Assignment 02
+* I declare that this assignment is my own work in accordance with Seneca Academic
+Policy. No part * of this assignment has been copied manually or electronically from any
+other source
+* (including 3rd party web sites) or distributed to other students.
+*
+* Name: Subin Gurung
+  Student ID: 
+  Date: 09/02/2023
+
+*
+* Online (cyclic) Link: 
+
+************************************************************************
+********/
+
 var HTTP_PORT = process.env.PORT || 8080;
 var express = require("express");
-var blog = require("../web322-app/blog-service");
+var blog = require("./blog-service");
 var app = express();
+var path = require("path");
 
-app.use(express.static("public"));
+app.use(express.static("./public/"));
+
+blog
+  .initialize()
+  .then(() => {
+    app.listen(HTTP_PORT, function () {
+      console.log("Express http server listening on port " + HTTP_PORT);
+    });
+  })
+  .catch((err) => {
+    console.error("Error initializing the blog service:", err);
+  });
 
 app.get("/", (req, res) => {
   res.redirect("/about");
@@ -13,24 +43,37 @@ app.get("/about", (req, res) => {
   res.sendFile(__dirname + "/views/about.html");
 });
 
-app.listen(HTTP_PORT, function () {
-  console.log("Express http server listening on port " + HTTP_PORT);
+app.get("/posts", (req, res) => {
+  blog
+    .getPosts()
+    .then((data) => {
+      res.json({ data });
+    })
+    .catch((err) => {
+      res.json({ message: err });
+    });
+});
+
+app.get("/categories", (req, res) => {
+  blog
+    .getCategories()
+    .then((data) => {
+      res.json({ data });
+    })
+    .catch((err) => {
+      res.json({ message: err });
+    });
 });
 
 app.get("/blog", (req, res) => {
-  // Read the posts.json file
-  blog.readFile("posts.json", "utf8", (err, data) => {
-    if (err) {
-      res.send(err);
-    } else {
-      // Parse the JSON data
-      const posts = JSON.parse(data);
-      // Filter the posts to only include those with published==true
-      const publishedPosts = posts.filter((post) => post.published === true);
-      // Send the filtered posts as a JSON string
-      res.json(publishedPosts);
-    }
-  });
+  blog
+    .getPublishedPosts()
+    .then((data) => {
+      res.json({ data });
+    })
+    .catch((err) => {
+      res.json({ message: err });
+    });
 });
 
 app.use("*", (req, res) => {
